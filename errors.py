@@ -1,4 +1,4 @@
-#Errors raised by the feature modules. The UI shows their message to the user.
+#Errors raised by the feature modules. The UI shows hypothetically their message to the user.
 
 
 class ServiceError(Exception):
