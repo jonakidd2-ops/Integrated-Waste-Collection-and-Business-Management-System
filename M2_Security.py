@@ -11,8 +11,8 @@ HASHSTRENGHT= 200_000 #used to detemine # of time hashing is repaeted
 #make a normal passwrd into a secure hash before saving it to the databse
 def hash_pswrd(pwrd: str)-> str: #incase your wondering what the -->str is, it just mean it's expected to return a string
    r_salt=os.urandom(16)#gens a random 16byt salt, used to make a passwrd unique
-  pwd_hash= hashlib.pbkdf2_hmac("sha256",pwrd.encode(), r_salt, HASHSTRENGHT) #gentrerates a passwrd hash from a pswrd bytes
-return f"{r_salt.hex()}${pwd_hash.hex()}" #converts to hexadecimal with $ inbetween
+   pwd_hash= hashlib.pbkdf2_hmac("sha256",pwrd.encode(), r_salt, HASHSTRENGHT) #gentrerates a passwrd hash from a pswrd bytes
+  return f"{r_salt.hex()}${pwd_hash.hex()}" #converts to hexadecimal with $ inbetween
   
 
 def is_pswrd(password: str, stored: str)->bool: ##expected return type booolean
