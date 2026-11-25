@@ -29,12 +29,37 @@ def clash(col_to_asgn,trks_col,trk_id,trk): #(col to be assigned trk,cols that m
 def these_good(db,user,collection_id):
     security.require(user,"assign")#checks permissions of user
     col_to_asgn=db.get("collection", collection_id) #get the collection info from database
+    out=[]
     if col_to_asgn is None: #makes sure the collection exists
         raise NotFound("Collection does not exist.")
     trks_col=relevant_col(db,col_to_asgn)#making sure we don't bother with irrelevant collections
     for t in db.find("trucks"): #looping trough the trucks
+        not_good=clash(col_to_asgn,trks_col,"truck_id",r["id"])#check if clash exist for each truck
+        msg=f"busy {not_good[0]['start_time']}-{not_good[0]['end_time']} at {not_good[0]["address"]}" if not_good else "" #tells you why where the confilct exist if i does
+        out.append({"id": t["id"], "name": t["name"], "available": not not_good, "note": msg}) 
+    return{"trucks": out}
+
+def assign(db, user, collection_id, truck_id):
+    security.require(user, "assign")
+    if truck_id is None:
+        raise ValidationError("Choose a truck.")
+    with db.transaction():
+        col_to_asgn=db.get("collections", collection_id)
+        if col_to_asgn is None:
+            raise NotFound("Collection not found.")
+        truck = db.get("trucks", truck_id)
+        if truck is None:
+            raise ValidationError("Choose a valid truck.")
+        not_good=conflicts(col_to_asgn, _same_day(db, col_to_asgn), "truck_id", truck_id)
+        if not_good:
+            raise Conflict(f"{truck['name']} is already assigned to {not_good[0]['address']} "
+                           f"from {not_good[0]['start_time']} to {not_good[0]['end_time']}.")
+        db.save("collections", {"id": collection_id, "truck_id": truck_id})
+    return schedules.get_collection(db, collection_id)
+        
+        
         
     
-    
+
 
     
