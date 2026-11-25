@@ -2,10 +2,10 @@ import os
 import tkinter as tk
 from tkinter import messagebox, ttk
 
-from ..import backup,M2_Security
+from .. import backup,M2_Security
 from ..errors import ServiceError
 from .import screens
-#from .create_a_py_with_helper_functions that the screens may use import 
+from .screen_helper import run
 
 #menu text, permission needed, screen class
 MENU=[
