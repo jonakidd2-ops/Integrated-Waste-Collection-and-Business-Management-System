@@ -9,12 +9,12 @@ from .screen_helper import run
 
 #menu text, permission needed(check M2_Security), screen class
 MENU = [
-    ("Parts orders (F-01)", "parts_orders", screens.PartsOrderScreen),
-    ("Documents (F-02)", "documents", screens.DocumentsScreen),
-    ("Collection schedule (F-03)", "schedules", screens.SchedulesScreen),
+    ("Parts orders (F-01)", "parts_orders", screens.class_FORscreen_here),
+    ("Documents (F-02)", "documents", screens.class_FORscreen_here),
+    ("Collection schedule (F-03)", "schedules", screens.class_FORscreen_here),
     ("Truck assignment (F-04)", "assign", screens.AssignmentScreen),
-    ("Collection status (F-05)", "view_collections", screens.StatusScreen),
-    ("Contracts (F-06)", "contracts", screens.ContractsScreen),
+    ("Collection status (F-05)", "view_collections", screens.class_FORscreen_here),
+    ("Contracts (F-06)", "contracts", screens.class_FORscreen_here),
 ]
 
 
