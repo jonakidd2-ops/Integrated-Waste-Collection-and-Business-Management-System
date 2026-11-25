@@ -11,6 +11,8 @@ from tkinter import *
 
 from datetime import datetime
 
+from random import randint
+
 #order_state is a dictionary that keeps track of the current order comprising
 #a counter and a dictionary with the parts currently in the pending order
 def order_details(order_state):
@@ -69,10 +71,11 @@ def send_order(order_state, supplier_email):
     #Creates email
     #Sender email is a burner email used for demonstrative purposes and does not
     #contain any personal information, password is donfran18
+    order_ID = randint(1000, 9999)
     msg = MIMEMultipart()
     msg['From'] = "dfenterprise15@gmail.com"
     msg['To'] = supplier_email
-    msg['Subject'] = "Part Order from DonFran Enterprise"
+    msg['Subject'] = "Part Order from DonFran Enterprise - DF" + str(order_ID)
     dt = datetime.now()
 
     body = (
@@ -98,6 +101,9 @@ def send_order(order_state, supplier_email):
         messagebox.showinfo("Success", "Order sent successfully!")
     finally:
         server.quit()
+    with open("sent_orders.txt", "a") as f:
+        f.write(f"Order-DF{order_ID} sent to {supplier_email} at {dt.replace(second=0, microsecond=0)}\n")
+        f.write("\n".join(order_lines) + "\n\n")
 
 def part_window(window):
     window.withdraw()
