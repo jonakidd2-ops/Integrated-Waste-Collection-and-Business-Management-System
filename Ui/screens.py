@@ -15,19 +15,6 @@ def collection_row_s(rows):
 COLLECTION_COLUMNS = [("date", "Date", 90), ("time", "Time", 100), ("customer", "Customer", 170),
                       ("address", "Address", 150), ("truck", "Truck", 90), ("status", "Status", 90)]
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 #M6 SCREEEEEENNNNNN
 ##################################################################################################################################################################
 class AssignmentScreen(ttk.Frame):
