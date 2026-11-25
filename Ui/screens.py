@@ -35,7 +35,11 @@ class AssignmentScreen(ttk.Frame):
         self.refresh()
 
     def refresh(self, keep=None):
-        rows=run(M5_Collection_Schedule.list_collections, self.app.db, self.app.user) or [] )#working with assump that M5 will have a function to list col.;remember to rename to actual function
+        rows = run(
+            M5_Collection_Schedule.list_collections,
+            self.app.db,
+            self.app.user,
+        ) or []
         fill_tree(self.tree,collection_row_s(rows))
         if keep is not None and self.tree.exists(str(keep)):
             self.tree.selection_set(str(keep))
