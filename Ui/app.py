@@ -77,13 +77,13 @@ class App(tk.Tk):
             ttk.Button(header, text="Run backup now", command=self.run_backup).pack(side="right", padx=6)
         ttk.Separator(self).pack(fill="x")
 
-        body = ttk.Frame(self)
+        body=ttk.Frame(self)
         body.pack(fill="both", expand=True)
-        nav = ttk.Frame(body, padding=8)
+        nav=ttk.Frame(body, padding=8)
         nav.pack(side="left", fill="y")
         self.content = ttk.Frame(body)
         self.content.pack(side="left", fill="both", expand=True)
-        first = None
+        first=None
         for text, action, cls in MENU:
             if M2_Security.can(self.user["role"], action):
                 ttk.Button(nav, text=text, width=30, command=lambda c=cls: self.show_screen(c)).pack(pady=3)
