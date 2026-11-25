@@ -42,11 +42,10 @@ class ContractManagement:
 
         self.db = database
 
-    # ---------------------------------------------------------
-    # Validation helpers
-    # ---------------------------------------------------------
+# THIS SECTION DEALS WITH VALIDATION METHODS
 
     @staticmethod
+    """This text is at the least required, cannot continue without it."""
     def _required_text(value, field_name):
         """Return trimmed text or raise an error if it is missing."""
         if not isinstance(value, str) or not value.strip():
@@ -75,15 +74,12 @@ class ContractManagement:
                 f"{field_name} must be a valid date in YYYY-MM-DD format."
             ) from None
 
-    # ---------------------------------------------------------
-    # Customer operations
-    # ---------------------------------------------------------
+
+# THIS SECTION DEALS WITH CUSTOMERS AND CONTRACTS
     
     def create_customer(self, name, contact=None):
         """
         Store a new customer and return its generated database ID.
-
-        Customers may represent small businesses or communities.
         The schema stores their name and one general contact field.
         """
         name = self._required_text(name, "Customer name")
@@ -102,8 +98,8 @@ class ContractManagement:
                 "Create the customer before adding a contract."
             )
 
-        # document_id is optional, but if supplied it must refer to a
-        # document that already exists.
+        # document_id is optional, but if supplied it must refer to a pre-existing document.
+
         if document_id is not None:
             self._validate_id(document_id, "Document ID")
             document = self.db.get(self.DOCUMENT_TABLE, document_id)
@@ -112,7 +108,10 @@ class ContractManagement:
                 raise DocumentNotFoundError(
                     f"Document ID {document_id} does not exist."
                 )
-
+      
+        """Details may include service arrangements, collection frequency and agreed fees 
+        which do not have their own dedicated section"""
+        
         contract_record = {
             "customer_id": customer["id"],
             "details": details,
@@ -130,15 +129,16 @@ class ContractManagement:
         return contract_id
 
     def get_contract(self, contract_id):
-        """Retrieve one contract using its database ID."""
+        """Retrieve one customer's contract using its database ID."""
         self._validate_id(contract_id, "Contract ID")
         return self.db.get(self.CONTRACT_TABLE, contract_id)
 
     def get_customer_contracts(self, customer_id):
-        """Retrieve every contract belonging to a particular customer."""
+        """Retrieves every contract of one particular customer using their customer ID."""
         self._validate_id(customer_id, "Customer ID")
 
         customer = self.db.get(self.CUSTOMER_TABLE, customer_id)
+        """ensures customer exists"""
         if customer is None:
             raise CustomerNotFoundError(
                 f"Customer ID {customer_id} does not exist."
@@ -150,11 +150,12 @@ class ContractManagement:
         )
 
     def get_contracts_by_customer_name(self, customer_name):
-        """Retrieve contracts by the customer's exact name."""
+        """Retrieves contracts by the customer's exact name."""
         customer = self.find_customer_by_name(customer_name)
 
         if customer is None:
             raise CustomerNotFoundError(
+                """ensures customer exists"""
                 f"Customer '{customer_name}' was not found."
             )
 
@@ -192,13 +193,11 @@ class ContractManagement:
         results = self.db.query(sql, (contract_id,))
         return results[0] if results else None
 
-    # ---------------------------------------------------------
-    # Shared validation
-    # ---------------------------------------------------------
+# Code that is resused for validating customer/contract ID rather than rewriting for each method
 
     @staticmethod
     def _validate_id(value, field_name):
-        """Require a positive integer database ID."""
+        """Require a database ID that is positive integer."""
         if isinstance(value, bool) or not isinstance(value, int) or value <= 0:
             raise ValidationError(f"{field_name} must be a positive integer.")
 
