@@ -10,21 +10,31 @@ def t_range(a): #range for timne for the collection; this converts it to a datet
     return (datetime.strptime(f"{a['date']} {a['start_time']}", "%Y-%m-%d %H:%M"), datetime.strptime(f"{a['date']} {a['end_time']}", "%Y-%m-%d %H:%M"))
 def does_overlap(start, end, startcmp, endcmp): #checks if time ovelaps 
   return end<startcmp and endcmp>startcmp #this also account for if a collection end at a specified time and another begins at that same specified time and doesn't treat that as an overlap
-def relevant_col(db,notrk_col):
-    return db.query("SELECT * FROM collections WHERE date=? AND id!=?",(notrk_col["date"],notrk_col["id"]))#pulls collections for the same day exclluding the one to be assigned
+def relevant_col(db,notrk_col):#pulls collections for the same day exclluding the one to be assigned
+    return db.query("SELECT * FROM collections WHERE date=? AND id!=?",(notrk_col["date"],notrk_col["id"]))
 
-def clash(notrk_col,trks_col,trk_id,val):
-    clashy=[]
-    notrk_col_start,notrk_col_end=t_range(notrk_col)
-    for d in trks_col:
-        if d[trk_id]!=val or d["id"]==notrk_col["id"] or d["status"]==CANCELED:
+def clash(col_to_asgn,trks_col,trk_id,trk): #(col to be assigned trk,cols that may be using trk,dic key containing trk id,id of truck to assign)
+    clashy=[]#list to store clashes
+    col_to_asgn_start,col_to_asgn_end=t_range(notrk_col) #range for collection to be assigned
+    for d in trks_col: #other collections
+        if d[trk_id]!=trk or d["id"]==col_to_asgn["id"] or d["status"]==CANCELED:#skips a collection if it uses a different truck, it is canceled or its the collection being assigned
             continue
-        if d["address"]==notrk_col["address"]:
+        if d["address"]==col_to_asgn["address"]:#skips a col if there at the same adress
             continue
         d_start, d_end=t_range(d)
-        if does_overlaps(notrk_col_start, notrk_col_end, d_start, d_end):
+        if does_overlaps(col_to_asgn_start, col_to_asgn_end, d_start, d_end): #check if the time ovelaps and add it to the list clashes
             clashy.append(d)
     return clashy
 
+def these_good(db,user,collection_id):
+    security.require(user,"assign")#checks permissions of user
+    col_to_asgn=db.get("collection", collection_id) #get the collection info from database
+    if col_to_asgn is None: #makes sure the collection exists
+        raise NotFound("Collection does not exist.")
+    trks_col=relevant_col(db,col_to_asgn)#making sure we don't bother with irrelevant collections
+    for t in db.find("trucks"): #looping trough the trucks
+        
+    
+    
 
     
