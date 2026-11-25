@@ -67,14 +67,14 @@ class AssignmentScreen(ttk.Frame):
 
         self.truck_map = {label(o): o["id"] for o in opts["trucks"]}
         self.truck_box.configure(values=list(self.truck_map))
-        self.truck.set(next((k for k, v in self.truck_map.items() if v == c["truck_id"]), ""))
+        self.truck.set(next((k for k, v in self.truck_map.items() if v==c["truck_id"]), ""))
 
     def assign(self):
         cid=selected_id(self.tree)
         if cid is None:
             messagebox.showinfo("Choose a collection", "Select a collection in the list first.")
             return
-        result = run(M6_Truck_Assignment.assign, self.app.db, self.app.user, cid, self.truck_map.get(self.truck.get())) 
+        result=run(M6_Truck_Assignment.assign, self.app.db, self.app.user, cid, self.truck_map.get(self.truck.get())) 
         if result:
             messagebox.showinfo("Assigned", f"{result['truck']} assigned to "
                                             f"{result['customer']} on {result['date']} ({tim_e(result)}).")
