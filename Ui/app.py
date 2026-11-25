@@ -7,14 +7,15 @@ from ..errors import ServiceError
 from .import screens
 from .screen_helper import run
 
-#menu text, permission needed, screen class
-MENU=[
-    ("Parts orders (F-01)", "Module_NAME_HERE", screens.Class_forSCren_here),
-    ("Documents (F-02)", "Module_NAME_HERE", screens.Class_forSCren_here),
-    ("Collection schedule (F-03)", "Module_NAME_HERE", screens.Class_forSCren_here),
-    ("Truck assignment (F-04)", "Module_NAME_HERE", screens.Class_forSCren_here),
-    ("Collection status (F-05)", "Module_NAME_HERE", screens.Class_forSCren_here),
-    ("Contracts (F-06)", "Module_NAME_HERE", screens.Class_forSCren_here),]
+#menu text, permission needed(check M2_Security), screen class
+MENU = [
+    ("Parts orders (F-01)", "parts_orders", screens.PartsOrderScreen),
+    ("Documents (F-02)", "documents", screens.DocumentsScreen),
+    ("Collection schedule (F-03)", "schedules", screens.SchedulesScreen),
+    ("Truck assignment (F-04)", "assign", screens.AssignmentScreen),
+    ("Collection status (F-05)", "view_collections", screens.StatusScreen),
+    ("Contracts (F-06)", "contracts", screens.ContractsScreen),
+]
 
 
 class App(tk.Tk):
