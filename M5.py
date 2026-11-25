@@ -1,8 +1,8 @@
 from datetime import datetime
-from . import security
+from . import M2_Security
 from .errors import NotFound, ValidationError
 
-SELECT = ("SELECT c.id, c.customer_id, cu.name AS customer, c.address, c.date, c.start_time, c.end_time, "
+SELECT=("SELECT c.id, c.customer_id, cu.name AS customer, c.address, c.date, c.start_time, c.end_time, "
            "c.status, c.truck_id, t.name AS truck "
            "FROM collections c JOIN customers cu ON cu.id = c.customer_id "
            "LEFT JOIN trucks t ON t.id = c.truck_id")
@@ -26,7 +26,7 @@ def list_customers(db):
     return db.find("customers")
 
 def add_collection(db, user, customer_id, address, day, start, end):
-    security.require(user, "schedules")
+    M2_Security.require(user, "schedules")
     address=check_fields(address, day, start, end)
     if db.get("customers", customer_id) is None:
         raise ValidationError("Choose a customer.")
@@ -34,7 +34,7 @@ def add_collection(db, user, customer_id, address, day, start, end):
                                    "start_time": start, "end_time": end, "status": "Scheduled"})
 
 def update_collection(db, user, collection_id, customer_id, address, day, start, end):
-    security.require(user, "schedules")
+    M2_Security.require(user, "schedules")
     if db.get("collections", collection_id) is None:
         raise NotFound("Collection not found.")
     address = check_fields(address, day, start, end)
@@ -44,7 +44,7 @@ def update_collection(db, user, collection_id, customer_id, address, day, start,
                             "date": day, "start_time": start, "end_time": end})
 
 def delete_collection(db, user, collection_id):  #The UI will be the one asks the user to confirm before calling this.
-    security.require(user, "schedules")
+    M2_Security.require(user, "schedules")
     if db.get("collections", collection_id) is None:
         raise NotFound("Collection not found.")
     db.remove("collections", collection_id)
