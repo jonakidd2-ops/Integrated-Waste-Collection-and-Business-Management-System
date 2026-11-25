@@ -15,15 +15,16 @@ class DocumentsAppScreen(DocumentScreen):
 
 
 # Menu text, permission needed, screen class.
-# Enable the remaining entries when their screens and permissions are connected.
+# Enable unfinished entries when their screens and permissions are connected.
 MENU = [
-    # ("Parts orders (F-01)", "Module_NAME_HERE", screens.Class_forSCren_here),
+    # ("Parts orders (F-01)", "", screens.class_FORscreen_here),
     ("Documents (F-02)", "documents", DocumentsAppScreen),
-    # ("Collection schedule (F-03)", "Module_NAME_HERE", screens.Class_forSCren_here),
-    # ("Truck assignment (F-04)", "Module_NAME_HERE", screens.Class_forSCren_here),
-    # ("Collection status (F-05)", "Module_NAME_HERE", screens.Class_forSCren_here),
-    # ("Contracts (F-06)", "Module_NAME_HERE", screens.Class_forSCren_here),
+    # ("Collection schedule (F-03)", "", screens.class_FORscreen_here),
+    ("Truck assignment (F-04)", "M6_Truck_Assignment", screens.AssignmentScreen),
+    # ("Collection status (F-05)", "", screens.class_FORscreen_here),
+    # ("Contracts (F-06)", "", screens.class_FORscreen_here),
 ]
+
 
 class App(tk.Tk):
     def __init__(self, db, base_dir):

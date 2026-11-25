@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from . import schedule_module_HERE, security
+from . import M5, security
 from .errors import Conflict, NotFound, ValidationError
 
 CANCELED="Canceled" #varible to help identify a canceled collection; to make sure a canceled collection doesn't cause a conflict
@@ -55,7 +55,7 @@ def assign(db, user, collection_id, truck_id):
             raise Conflict(f"{truck['name']} is already assigned to {not_good[0]['address']} "
                            f"from {not_good[0]['start_time']} to {not_good[0]['end_time']}.")
         db.save("collections", {"id": collection_id, "truck_id": truck_id})
-    return schedules.get_collection(db, collection_id)
+    return M5.get_collection(db, collection_id)
         
         
         
