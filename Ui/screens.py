@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 
-from .. import (M6_Truck_Assignment,M3_Parts_Order,M2_Security,M5)#add you modules here
+from .. import (M6_Truck_Assignment,M3_Parts_Order,M2_Security,M5_Collection_Sched)#add you modules here
 from .screen_helpers import (confirm, fill_tree, heading, labeled_combo, labeled_entry, make_tree, money, run,
                      selected_id)
 
@@ -35,7 +35,7 @@ class AssignmentScreen(ttk.Frame):
         self.refresh()
 
     def refresh(self, keep=None):
-        rows=run(M5.list_collections, self.app.db, self.app.user,) or []
+        rows=run(M5_Collection_Sched.list_collections, self.app.db, self.app.user,) or []
         fill_tree(self.tree,collection_row_s(rows))
         if keep is not None and self.tree.exists(str(keep)):
             self.tree.selection_set(str(keep))
@@ -47,7 +47,7 @@ class AssignmentScreen(ttk.Frame):
         opts=run(M6_Truck_Assignment.these_good, self.app.db, self.app.user, cid)
         if opts is None:
             return
-        c=M5.get_collection(self.app.db, cid)
+        c=M5_Collection_Sched.get_collection(self.app.db, cid)
 
         def label(o):
             return o["name"] if o["available"] else f"{o['name']}  (NOT available: {o['note']})"
@@ -74,7 +74,7 @@ class SchedulesScreen(ttk.Frame):
     def __init__(self, parent, app):
         super().__init__(parent, padding=10)
         self.app = app
-        self.customers = {c["name"]: c["id"] for c in M5.list_customers(app.db)}
+        self.customers = {c["name"]: c["id"] for c in M5_Collection_Sched.list_customers(app.db)}
         heading(self, "Collection schedule (F-03)").pack(anchor="w")
         bar = ttk.Frame(self)
         bar.pack(fill="x", pady=6)
@@ -111,14 +111,14 @@ class SchedulesScreen(ttk.Frame):
 
     def refresh(self):
         cust=self.customers.get(self.f_customer.get())
-        rows=run(M5.list_collections, self.app.db, self.app.user, cust, self.f_from.get().strip() or None, self.f_to.get().strip() or None) or []
+        rows=run(M5_Collection_Sched.list_collections, self.app.db, self.app.user, cust, self.f_from.get().strip() or None, self.f_to.get().strip() or None) or []
         fill_tree(self.tree, collection_row_s(rows))
 
     def on_select(self, _event=None):
         cid = selected_id(self.tree)
         if cid is None:
             return
-        c=M5.get_collection(self.app.db, cid)
+        c=M5_Collection_Sched.get_collection(self.app.db, cid)
         self.customer.set(c["customer"])
         self.address.set(c["address"])
         self.day.set(c["date"])
@@ -130,7 +130,7 @@ class SchedulesScreen(ttk.Frame):
                 self.start.get().strip(), self.end.get().strip())
 
     def add(self):
-        if run(M5.add_collection, self.app.db, self.app.user, *self._values()) is not None:
+        if run(M5_Collection_Sched.add_collection, self.app.db, self.app.user, *self._values()) is not None:
             self.clear()
             self.refresh()
 
@@ -139,7 +139,7 @@ class SchedulesScreen(ttk.Frame):
         if cid is None:
             messagebox.showinfo("Choose a collection", "Select a collection in the list first.")
             return
-        run(M5.update_collection, self.app.db, self.app.user, cid, *self._values())
+        run(M5_Collection_Sched.update_collection, self.app.db, self.app.user, cid, *self._values())
         self.refresh()
 
     def delete(self):
@@ -148,7 +148,7 @@ class SchedulesScreen(ttk.Frame):
             messagebox.showinfo("Choose a collection", "Select a collection in the list first.")
             return
         if confirm("Delete collection", "Delete this collection schedule?"):
-            run(M5.delete_collection, self.app.db, self.app.user, cid)
+            run(M5_Collection_Sched.delete_collection, self.app.db, self.app.user, cid)
             self.clear()
             self.refresh()
 
