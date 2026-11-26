@@ -3,7 +3,7 @@
 #we can remove this after we run it once since it will have the database
 from datetime import date, timedelta
 
-from . import security
+from . import M2_Security as security
 
 PASSWORDS="1234" #used a universal password to save us the headache
 
