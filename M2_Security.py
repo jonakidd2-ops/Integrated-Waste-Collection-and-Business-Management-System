@@ -4,7 +4,8 @@ import os
 from .errors import AuthError, PermissionDenied #makes the custom exceptions that were in error.py avialable for use where nessary here
 
 ROLES=("Owner", "Admin", "Team Leader", "Sidemen") #Roles within the system
-PERMISSIONS={"M6_Truck_Assignment": {"Admin"},}#content inside tupe would take the format {"PartOrder": {Admin},} PartOrder being the name of the module for F-01
+PERMISSIONS={"M6_Truck_Assignment": {"Admin"},"documents": {"Owner", "Admin"},"schedules":{"Owner", "Admin"},
+             "view_collections": {"Owner", "Admin", "Team Leader", "Sidemen"}}#content inside tupe would take the format {"PartOrder": {Admin},} PartOrder being the name of the module for F-01
 #decide which role can perform whcih action
 HASHSTRENGHT= 200_000 #used to detemine # of time hashing is repaeted
 

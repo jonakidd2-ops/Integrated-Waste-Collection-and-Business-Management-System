@@ -5,16 +5,25 @@ from tkinter import messagebox, ttk
 from .. import backup,M2_Security
 from ..errors import ServiceError
 from .import screens
-from .screen_helper import run
+from ..M4_Document_Management import DocumentManager
+from .document_screen import DocumentScreen
 
-#menu text, permission needed, screen class
-MENU=[
-    ("Parts orders (F-01)", "Module_NAME_HERE", screens.Class_forSCren_here),
-    ("Documents (F-02)", "Module_NAME_HERE", screens.Class_forSCren_here),
-    ("Collection schedule (F-03)", "Module_NAME_HERE", screens.Class_forSCren_here),
-    ("Truck assignment (F-04)", "Module_NAME_HERE", screens.Class_forSCren_here),
-    ("Collection status (F-05)", "Module_NAME_HERE", screens.Class_forSCren_here),
-    ("Contracts (F-06)", "Module_NAME_HERE", screens.Class_forSCren_here),]
+class DocumentsAppScreen(DocumentScreen):
+    def __init__(self, parent, app):
+        manager = DocumentManager(app.db, M2_Security.require)
+        super().__init__(parent, manager, app.user)
+
+
+# Menu text, permission needed, screen class.
+# Enable unfinished entries when their screens and permissions are connected.
+MENU = [
+    # ("Parts orders (F-01)", "", screens.class_FORscreen_here),
+    ("Documents (F-02)", "documents", DocumentsAppScreen),
+    # ("Collection schedule (F-03)", "", screens.class_FORscreen_here),
+    ("Truck assignment (F-04)", "M6_Truck_Assignment", screens.AssignmentScreen),
+    # ("Collection status (F-05)", "", screens.class_FORscreen_here),
+    # ("Contracts (F-06)", "", screens.class_FORscreen_here),
+]
 
 
 class App(tk.Tk):
