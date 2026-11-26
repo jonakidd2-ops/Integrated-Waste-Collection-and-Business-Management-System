@@ -55,5 +55,21 @@ def get_collection(db, collection_id):
         raise NotFound("Collection not found.")
     return rows[0]
 
-def list_collections(db, user, customer_id=None, date_from=None, date_to=None): #####Soon write this but all the nessary function should be mostly complete
+def list_collections(db, user, customer_id=None, date_from=None, date_to=None):
+    M2_Security.require(user,"view_collections")
+    conds,params=[],[]
+    if user["role"] in ("Team Leader","Sidemen"):
+        conds.append("c.truck_id = ?")
+        params.append(user["truck_id"])
+    if customer_id:
+        conds.append("c.customer_id = ?")
+        params.append(customer_id)
+    if date_from:
+        conds.append("c.date >= ?")
+        params.append(date_from)
+    if date_to:
+        conds.append("c.date <= ?")
+        params.append(date_to)
+    sql=SELECT + (" WHERE " + " AND ".join(conds) if conds else "") + " ORDER BY c.date, c.start_time"
+    return db.query(sql, tuple(params))
   ##Go through it a tell me wha you think
