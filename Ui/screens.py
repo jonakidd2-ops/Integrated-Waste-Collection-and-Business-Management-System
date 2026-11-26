@@ -5,14 +5,14 @@ from .. import (M6_Truck_Assignment,M3_Parts_Order,M2_Security,M5)#add you modul
 from .screen_helpers import (confirm, fill_tree, heading, labeled_combo, labeled_entry, make_tree, money, run,
                      selected_id)
 
-def tim_e(c):
+def tim_e(c): #takes a collection dictionary and combines the start and end times into one string.
     return f"{c['start_time']}-{c['end_time']}"
 
-def collection_row_s(rows):
+def collection_row_s(rows):#converts collection records into the format required table.
     return [(c["id"], (c["date"], tim_e(c), c["customer"], c["address"], c["truck"] or "-",
                        c["status"])) for c in rows]
 
-COLLECTION_COLUMNS = [("date", "Date", 90), ("time", "Time", 100), ("customer", "Customer", 170),
+COLLECTION_COLUMNS=[("date", "Date", 90), ("time", "Time", 100), ("customer", "Customer", 170), #(column_identifier, heading, width)
                       ("address", "Address", 150), ("truck", "Truck", 90), ("status", "Status", 90)]
 
 #M6 SCREEEEEENNNNNN
@@ -20,25 +20,22 @@ COLLECTION_COLUMNS = [("date", "Date", 90), ("time", "Time", 100), ("customer", 
 class AssignmentScreen(ttk.Frame):
     def __init__(self, parent, app):
         super().__init__(parent, padding=10)
-        self.app = app
-        self.truck_map = {}
+        self.app=app
+        self.truck_map={} #creates an empty dictionary that will map truck dropdown labels to truck IDs
         heading(self, "Truck assignment (F-04)").pack(anchor="w")
         ttk.Label(self, text="Select a scheduled collection, then choose a truck. "
                              "A truck cannot be assigned to two different locations at overlapping times.").pack(anchor="w", pady=4)
         frame, self.tree=make_tree(self, COLLECTION_COLUMNS, height=12)
         frame.pack(fill="both", expand=True)
         self.tree.bind("<<TreeviewSelect>>", self.on_select)
-        form = ttk.LabelFrame(self, text="Assign", padding=8)
+        form=ttk.LabelFrame(self, text="Assign", padding=8)
         form.pack(fill="x", pady=8)
         self.truck, self.truck_box=labeled_combo(form, "Truck", 0, [], width=60, want_widget=True)
         ttk.Button(form, text="Assign", command=self.assign).grid(row=1, column=1, sticky="w", pady=6)
         self.refresh()
 
     def refresh(self, keep=None):
-        rows=run(M5.list_collections,
-            self.app.db,
-            self.app.user,
-        ) or []
+        rows=run(M5.list_collections, self.app.db, self.app.user,) or []
         fill_tree(self.tree,collection_row_s(rows))
         if keep is not None and self.tree.exists(str(keep)):
             self.tree.selection_set(str(keep))
@@ -55,7 +52,7 @@ class AssignmentScreen(ttk.Frame):
         def label(o):
             return o["name"] if o["available"] else f"{o['name']}  (NOT available: {o['note']})"
 
-        self.truck_map = {label(o): o["id"] for o in opts["trucks"]}
+        self.truck_map={label(o): o["id"] for o in opts["trucks"]}
         self.truck_box.configure(values=list(self.truck_map))
         self.truck.set(next((k for k, v in self.truck_map.items() if v==c["truck_id"]), ""))
 
