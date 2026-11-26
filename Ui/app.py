@@ -17,7 +17,7 @@ class DocumentsAppScreen(DocumentScreen):
 # Menu text, permission needed, screen class.
 # Enable unfinished entries when their screens and permissions are connected.
 MENU = [
-    # ("Parts orders (F-01)", "", screens.class_FORscreen_here),
+    ("Parts orders (F-01)", "M3_Parts_Order", screens.OrderScreen),
     ("Documents (F-02)", "documents", DocumentsAppScreen),
     # ("Collection schedule (F-03)", "", screens.class_FORscreen_here),
     ("Truck assignment (F-04)", "M6_Truck_Assignment", screens.AssignmentScreen),
