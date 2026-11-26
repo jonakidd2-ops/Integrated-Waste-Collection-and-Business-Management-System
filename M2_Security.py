@@ -38,7 +38,7 @@ def can(role: str, action: str)->bool: #just a permission check to ensure that a
   return role in PERMISSIONS.get(action,set())
   #can("Owner", "backup") would return True
 
-def require(user: dict, action: str)->None: #this will likely just raise an exception for Permission Deny
+def require(user: dict, action: str)->None: 
   if not user or not can(user["role"], action):
     raise PermissionDenied("You are not allowed to do this")
   #require(user, "contracts") return Your role is not allowed to do this. if user lack the sufficent permission.
