@@ -12,7 +12,7 @@ def seed(db):
     if db.find("users"):
         return False  #already seeded
     d=lambda n: (date.today() + timedelta(days=n)).isoformat()
-    pw=security.hash_password(PASSWORDS)
+    pw=security.hash_pswrd(PASSWORDS)
     with db.transaction():
         t1=db.save("trucks", {"name": "Truck 1"})
         t2=db.save("trucks", {"name": "Truck 2"})
