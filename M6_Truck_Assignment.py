@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from . import M5, M2_Security
+from . import M2_Security, M5_Collection_Sched
 from .errors import Conflict, NotFound, ValidationError
 
 CANCELED="Canceled" #varible to help identify a canceled collection; to make sure a canceled collection doesn't cause a conflict
@@ -35,7 +35,7 @@ def these_good(db,user,collection_id):
     trks_col=relevant_col(db,col_to_asgn)#making sure we don't bother with irrelevant collections
     for t in db.find("trucks"): #looping trough the trucks
         not_good=clash(col_to_asgn,trks_col,"truck_id",t["id"])#check if clash exist for each truck
-        msg=f"busy {not_good[0]['start_time']}-{not_good[0]['end_time']} at {not_good[0]["address"]}" if not_good else "" #tells you why where the confilct exist if i does
+        msg=f"busy {not_good[0]['start_time']}-{not_good[0]['end_time']} at {not_good[0]['address']}" if not_good else "" #tells you why where the confilct exist if i does
         out.append({"id": t["id"], "name": t["name"], "available": not not_good, "note": msg}) 
     return{"trucks": out}
 
@@ -55,10 +55,15 @@ def assign(db, user, collection_id, truck_id):
             raise Conflict(f"{truck['name']} is already assigned to {not_good[0]['address']} "
                            f"from {not_good[0]['start_time']} to {not_good[0]['end_time']}.")
         db.save("collections", {"id": collection_id, "truck_id": truck_id})
-    return M5.get_collection(db, collection_id)
+    return M5_Collection_Sched.get_collection(db, collection_id)
         
         
         
+    
+
+
+    
+
     
 
 
