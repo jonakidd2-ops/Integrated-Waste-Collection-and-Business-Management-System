@@ -22,12 +22,12 @@ def clash(col_to_asgn,trks_col,trk_id,trk): #(col to be assigned trk,cols that m
         if d["address"]==col_to_asgn["address"]:#skips a col if there at the same adress
             continue
         d_start, d_end=t_range(d)
-        if does_overlaps(col_to_asgn_start, col_to_asgn_end, d_start, d_end): #check if the time ovelaps and add it to the list clashes
+        if does_overlap(col_to_asgn_start, col_to_asgn_end, d_start, d_end): #check if the time ovelaps and add it to the list clashes
             clashy.append(d)
     return clashy
 
 def these_good(db,user,collection_id):
-    security.require(user,"M6_Truck_Assignment")#checks permissions of user
+    M2_Security.require(user,"M6_Truck_Assignment")#checks permissions of user
     col_to_asgn=db.get("collections", collection_id) #get the collection info from database
     out=[]
     if col_to_asgn is None: #makes sure the collection exists
@@ -40,7 +40,7 @@ def these_good(db,user,collection_id):
     return{"trucks": out}
 
 def assign(db, user, collection_id, truck_id):
-    security.require(user, "M6_Truck_Assignment")
+    M2_Security.require(user, "M6_Truck_Assignment")
     if truck_id is None:
         raise ValidationError("Choose a truck.")
     with db.transaction():
