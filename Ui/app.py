@@ -19,9 +19,9 @@ class DocumentsAppScreen(DocumentScreen):
 MENU = [
     ("Parts orders (F-01)", "M3_Parts_Order", screens.OrderScreen),
     ("Documents (F-02)", "documents", DocumentsAppScreen),
-    # ("Collection schedule (F-03)", "", screens.class_FORscreen_here),
+    ("Collection schedule (F-03)", "schedules", screens.SchedulesScreen),
     ("Truck assignment (F-04)", "M6_Truck_Assignment", screens.AssignmentScreen),
-    # ("Collection status (F-05)", "", screens.class_FORscreen_here),
+    ("Collection status (F-05)", "M7_Collection_Status", screens.StatusScreen),
     # ("Contracts (F-06)", "", screens.class_FORscreen_here),
 ]
 
