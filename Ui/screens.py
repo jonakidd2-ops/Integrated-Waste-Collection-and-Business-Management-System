@@ -9,7 +9,7 @@ def tim_e(c):
     return f"{c['start_time']}-{c['end_time']}"
 
 def collection_row_s(rows):
-    return [(c["id"], (c["date"], _time(c), c["customer"], c["address"], c["truck"] or "-",
+    return [(c["id"], (c["date"], tim_e(c), c["customer"], c["address"], c["truck"] or "-",
                        c["status"])) for c in rows]
 
 COLLECTION_COLUMNS = [("date", "Date", 90), ("time", "Time", 100), ("customer", "Customer", 170),
@@ -51,7 +51,7 @@ class AssignmentScreen(ttk.Frame):
         opts=run(M6_Truck_Assignment.these_good, self.app.db, self.app.user, cid)
         if opts is None:
             return
-        c=M5_Collection_Schedule.get_collection(self.app.db, cid)#working with the assump M5 will have a func to  get collections; remember to rename to actual function
+        c=M5.get_collection(self.app.db, cid)
 
         def label(o):
             return o["name"] if o["available"] else f"{o['name']}  (NOT available: {o['note']})"
