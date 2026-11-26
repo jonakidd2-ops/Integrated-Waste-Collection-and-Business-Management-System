@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 
-from .. import (M6_Truck_Assignment,M3_Parts_Order,M2_Security,M5_Collection_Sched)#add you modules here
+from .. import (M6_Truck_Assignment,M3_Parts_Order,M2_Security,M5_Collection_Sched,M7_Collection_Status)#add you modules here
 from .screen_helpers import (confirm, fill_tree, heading, labeled_combo, labeled_entry, make_tree, money, run,
                      selected_id)
 
@@ -272,4 +272,36 @@ on the invoice sent by the supplier", justify="left")
                 content = file.read()
                 self.text_widget.delete(1.0, tk.END)
                 self.text_widget.insert(tk.END, content)
+##################################################################################################################################################################
+#Screen for M7
+###################################################################################################################################################################
+class StatusScreen(ttk.Frame):
+    def __init__(self, parent, app):
+        super().__init__(parent, padding=10)
+        self.app = app
+        own_truck_only = app.user["role"] in ("Team Leader", "Sidemen")
+        heading(self, "My truck's collections (F-05)" if own_truck_only else "Collection status (F-05)").pack(anchor="w")
+        frame, self.tree = make_tree(self, COLLECTION_COLUMNS, height=14)
+        frame.pack(fill="both", expand=True, pady=6)
+        row = ttk.Frame(self)
+        row.pack(fill="x")
+        ttk.Label(row, text="Set status of selected collection:").pack(side="left")
+        self.status = tk.StringVar()
+        ttk.Combobox(row, textvariable=self.status, values=list(M7_Collection_Status.Valid_Status), width=12,
+                     state="readonly").pack(side="left", padx=6)
+        ttk.Button(row, text="Save status", command=self.save).pack(side="left")
+        self.refresh()
 
+    def refresh(self, keep=None):
+        rows = run(M7_Collection_Status.list_collections, self.app.db, self.app.user) or []
+        fill_tree(self.tree, collection_row_s(rows))
+        if keep is not None and self.tree.exists(str(keep)):
+            self.tree.selection_set(str(keep))
+
+    def save(self):
+        cid = selected_id(self.tree)
+        if cid is None:
+            messagebox.showinfo("Choose a collection", "Select a collection in the list first.")
+            return
+        if run(M7_Collection_Status.update_status, self.app.db, self.app.user, cid, self.status.get()):
+            self.refresh(keep=cid)
