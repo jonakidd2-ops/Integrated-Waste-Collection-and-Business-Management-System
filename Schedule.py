@@ -159,13 +159,21 @@ def windowmaker():
                     0
         else:
             listbox.delete(0,END)
-            
+            sort1="all"
+            sort2="all"
+            if combo2.get()=="Any Customer":
+                sort1="all"
+                sort2="all"
+            else:
+                sort1="name"
+                sort2=combo2.get()
+
             if val=="Name":
-                sch=sorted(findinfo("all","all"),key=lambda x: x["name"])
+                sch=sorted(findinfo(sort1,sort2),key=lambda x: x["name"])
             elif val=="Address":
-                sch=sorted(findinfo("all","all"),key=lambda x: x["address"])
+                sch=sorted(findinfo(sort1,sort2),key=lambda x: x["address"])
             elif val=="Date and Time":
-                sch=sorted(findinfo("all","all"),key=lambda x: (x["year"],x["month"],x["day"]))
+                sch=sorted(findinfo(sort1,sort2),key=lambda x: (x["year"],x["month"],x["day"]))
             print(sch)
             for i in range(0, len(sch)):
                 d=ast.literal_eval(str(sch[i]))
@@ -320,6 +328,15 @@ def windowmaker():
     combo=ttk.Combobox(frame3,values=sortval,state="readonly")
     combo.set("Sort By")
     combo.grid(row=2,column=2)
+
+
+    sortvalueStr=[cust for cust in pointSchedDict.values()]
+    sortval2=["Any Customer"]
+    for cust in sortvalueStr:
+        sortval2.append(ast.literal_eval(cust)["name"])
+    combo2=ttk.Combobox(frame3,values=sortval2,state="readonly")
+    combo2.set("Any Customer")
+    combo2.grid(row=4,column=2)
 
 
     window.mainloop()
