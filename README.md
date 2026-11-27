@@ -42,15 +42,15 @@ The password for every user was set to (for convenience when testing) `1234`.
 
 the system is designed so that each role only sees the menu items it is allowed to use; it still enforces security requirements regardless tho
 
-## Sending order emails (optional)
+## Sending order emails
 when the email settings is unconfigured a parts order is saved as an `.eml` file in the a folder called `orders`. 
 in order to acutually send real email, set these before running:
 
     set DONFRAN_SMTP_HOST=smtp.gmail.com
     set DONFRAN_SMTP_PORT=587
-    set DONFRAN_SMTP_USER=your_address@gmail.com
-    set DONFRAN_SMTP_PASSWORD=your_app_password
-    set DONFRAN_SMTP_FROM=your_address@gmail.com
+    set DONFRAN_SMTP_USER=youraddress@gmail.com
+    set DONFRAN_SMTP_PASSWORD=yourapppassword
+    set DONFRAN_SMTP_FROM=youraddress@gmail.com
 please don't write passwords into the code lol, or commit it to the repository
 
 ## Project structure
