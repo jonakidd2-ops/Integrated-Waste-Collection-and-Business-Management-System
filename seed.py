@@ -1,6 +1,7 @@
 
 #this is the sample data for the database
 #we can remove this after we run it once since it will have the database
+#was written then filled with generated data
 from datetime import date, timedelta
 
 from . import M2_Security as security
@@ -11,7 +12,7 @@ PASSWORDS="1234" #used a universal password to save us the headache
 def seed(db):
     if db.find("users"):
         return False  #already seeded
-    d=lambda n: (date.today() + timedelta(days=n)).isoformat()
+    d=lambda n: (date.today()+timedelta(days=n)).isoformat()
     pw=security.hash_pswrd(PASSWORDS)
     with db.transaction():
         t1=db.save("trucks", {"name": "Truck 1"})
