@@ -1,3 +1,6 @@
+
+#not immplemented into the system yet; but don't think we need anymore code than this for the implementation
+#
 import os
 import sqlite3
 import sys
@@ -25,7 +28,7 @@ def list_backups(backup_dir):
 
 
 def restore(backup_path, db_path):
-    """Replace the live database with a backup. Close the app first."""
+    #Replace the live database with a backup. Close the app first.
     src = sqlite3.connect(backup_path)
     dst = sqlite3.connect(db_path)
     try:
