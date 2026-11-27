@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 
-from .. import (M6_Truck_Assignment,M3_Parts_Order,M2_Security,M5_Collection_Sched,M7_Collection_Status)#add you modules here
+from .. import (M5_Collection_Sched, M6_Truck_Assignment,M7_Collection_Status)#add you modules here
 from .screen_helpers import (confirm, fill_tree, heading, labeled_combo, labeled_entry, make_tree, money, run,
                      selected_id)
 
@@ -13,7 +13,7 @@ def collection_row_s(rows):#converts collection records into the format required
                        c["status"])) for c in rows]
 
 COLLECTION_COLUMNS=[("date", "Date", 90), ("time", "Time", 100), ("customer", "Customer", 170), #(column_identifier, heading, width)
-                      ("address", "Address", 150), ("truck", "Truck", 90), ("status", "Status", 90)]
+                      ("address", "Address", 150), ("truck", "Truck", 90), ("status", "Status", 90)]#gonna use to make table
 
 #M6 SCREEEEEENNNNNN
 ##################################################################################################################################################################
@@ -156,122 +156,6 @@ class SchedulesScreen(ttk.Frame):
         for v in (self.customer, self.address, self.day, self.start, self.end):
             v.set("")
 ###################################################################################################################################################################
-#M3 Screen
-###################################################################################################################################################################
-#Let me know if something is wrong here
-class OrderScreen(ttk.Frame):
-    def __init__(self, parent, app):
-        super.__init__(parent, padding = 10)
-        self.app = app
-        parts_dict = {
-            "Brake Pads": {"Cost": 7000},
-            "Oil Filter": {"Cost": 12000},
-            "Air Filter": {"Cost": 5150},
-            "Tire": {"Cost": 8000},
-            "Headlamp": {"Cost": 6500},
-            "Windshield Wiper": {"Cost": 2000},
-            "Steering Wheel": {"Cost": 4000}
-        }
-        part_window = tk.Frame(self, bg="lightblue")
-        part_window.pack(fill="both", expand=True)
-        tk.Label(part_window, text="Part Name:").grid(row=0, column=0, padx=10, pady=10)
-        p_name = ttk.Combobox(part_window)
-        p_name['values'] = tuple(parts_dict.keys())
-        p_name.current()
-        p_name.grid(row=0, column=1, padx=10, pady=10)
-        p_name.bind("<<ComboboxSelected>>", self.choice)
-
-        tk.Label(part_window, text="Quantity:").grid(row=1, column=0, padx=10, pady=10)
-        p_quantity = tk.Spinbox(part_window, from_=1, to=10)
-        p_quantity.grid(row=1, column=1, padx=10, pady=10)
-
-        #Dummy supplier email
-        tk.Label(part_window, text="Supplier Email:").grid(row=2, column=0, padx=10, pady=10)
-        default = tk.StringVar(value="harrycolesparts@gmail.com")
-        supp_email_E = tk.Entry(part_window, textvariable=default)
-        supp_email_E.grid(row=2, column=1, padx=10, pady=10)
-
-        order_state = {"counter": 0, "items": {}}
-        pending = tk.Label(part_window, text="Pending Order:\nTotal Cost: 0")
-        pending.grid(row=3, column=0, columnspan=2, pady=10)
-        tk.Button(part_window, text="Send Order", width = 10,
-                command=lambda: self.send(order_state, supp_email_E.get()),
-        ).grid(row=5, column=0, pady=10)
-        tk.Button(part_window, text="Add Part", width = 10,
-            command=lambda: self.add(
-                p_name.get(), p_quantity.get(), parts_dict, order_state, pending
-            ),
-        ).grid(row=4, column=0, pady=10)
-        
-        tk.Button(part_window, text="Remove Part", width = 10,
-            command=lambda: self.remove(order_state, pending),
-        ).grid(row=4, column=1, pady=10)
-        #tk.Button(part_window, text="Back", width = 10, command=self.back_Btn).grid(row=5, column=1, pady=10)
-        text_widget = tk.Text(part_window, height=10, width=50)
-        text_widget.grid(row=7, column=0, rowspan=4, columnspan=2, pady=10)
-        tk.Button(part_window, text="View History", command=self.open_file).grid(row=6, column=0, columnspan=2, pady=10)
-
-    def back_Btn(self):
-        self.destroy()
-
-    def choice(self, event):
-        details = tk.Label(self.part_window, text=f"Name: {event.widget.get()}\nCost: \
-{self.parts_dict[event.widget.get()]['Cost']}\n\
-*These are speculative prices and may not reflect those\n \
-on the invoice sent by the supplier", justify="left")
-        details.grid(row=0, column=2, rowspan=2, columnspan=2, pady=10)
-
-    def refresh(self, order_state, pending):
-        order_lines, total = run(M3_Parts_Order.order_details, order_state)
-        pending.config(
-            text=f"Pending Order:\n" + "\n".join(order_lines) + f"\nTotal Cost: {total}"
-        )
-
-    def send(self, order_state, supplier_email):
-        response = run(M3_Parts_Order.send_order, order_state, supplier_email)
-        if response:
-            messagebox.showinfo("Order Sent", "Order sent successfully!")
-            order_state["counter"] = 0
-            order_state["items"] = {}
-            self.refresh(order_state, self.pending)
-        else:
-            messagebox.showerror("Error", "Failed to send order, check supplier email or order details.")
-
-    def add(self, name, quan, parts_dict, order_state, pending):
-        try:
-            quan = int(quan)
-        except ValueError:
-            messagebox.showerror("Error", "Quantity must be a whole number.")
-            return
-        if name not in parts_dict or not 1 <= quan <= 10:
-            messagebox.showerror("Error", "Select a valid part and enter a quantity from 1 to 10.")
-            return
-        order_state["counter"] += 1
-        part_id = order_state["counter"]
-        order_state["items"][part_id] = {
-            "part": name,
-            "number": quan,
-            "price": parts_dict[name]["Cost"],
-        }
-        self.refresh(order_state, pending)
-
-    def remove(self, order_state, pending):
-        items = order_state["items"]
-        if not items:
-            messagebox.showerror("Error", "No parts to remove.")
-            return
-        part_id = max(items)
-        del items[part_id]
-        order_state["counter"] -= 1
-        self.refresh(order_state, pending)
-
-    def open_file(self):
-        file_path = "sent_orders.txt"
-        if file_path:
-            with open(file_path, 'r') as file:
-                content = file.read()
-                self.text_widget.delete(1.0, tk.END)
-                self.text_widget.insert(tk.END, content)
 ##################################################################################################################################################################
 #Screen for M7
 ###################################################################################################################################################################
@@ -279,29 +163,30 @@ class StatusScreen(ttk.Frame):
     def __init__(self, parent, app):
         super().__init__(parent, padding=10)
         self.app = app
-        own_truck_only = app.user["role"] in ("Team Leader", "Sidemen")
+        own_truck_only=app.user["role"] in ("Team Leader", "Sidemen")
         heading(self, "My truck's collections (F-05)" if own_truck_only else "Collection status (F-05)").pack(anchor="w")
-        frame, self.tree = make_tree(self, COLLECTION_COLUMNS, height=14)
+        frame, self.tree=make_tree(self, COLLECTION_COLUMNS, height=14)
         frame.pack(fill="both", expand=True, pady=6)
-        row = ttk.Frame(self)
+        row=ttk.Frame(self)
         row.pack(fill="x")
         ttk.Label(row, text="Set status of selected collection:").pack(side="left")
-        self.status = tk.StringVar()
-        ttk.Combobox(row, textvariable=self.status, values=list(M7_Collection_Status.Valid_Status), width=12,
+        self.status=tk.StringVar()
+        ttk.Combobox(row, textvariable=self.status, values=list(M7_Collection_Status.Valid_Status),width=12,
                      state="readonly").pack(side="left", padx=6)
         ttk.Button(row, text="Save status", command=self.save).pack(side="left")
         self.refresh()
 
     def refresh(self, keep=None):
-        rows = run(M7_Collection_Status.list_collections, self.app.db, self.app.user) or []
+        rows=run(M7_Collection_Status.list_collections, self.app.db, self.app.user) or []
         fill_tree(self.tree, collection_row_s(rows))
         if keep is not None and self.tree.exists(str(keep)):
             self.tree.selection_set(str(keep))
 
     def save(self):
-        cid = selected_id(self.tree)
+        cid=selected_id(self.tree)
         if cid is None:
             messagebox.showinfo("Choose a collection", "Select a collection in the list first.")
             return
         if run(M7_Collection_Status.update_status, self.app.db, self.app.user, cid, self.status.get()):
             self.refresh(keep=cid)
+
