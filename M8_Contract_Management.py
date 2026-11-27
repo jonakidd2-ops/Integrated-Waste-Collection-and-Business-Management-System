@@ -1,60 +1,70 @@
+#M8 Contracts (F-06): customer information and contract details.
+
+#every operation checks the user's role through M2 (M2_Security), and the errors
+#inherit from the shared ServiceError so the screens can show their messages.
+
+#this is hoe you make stuff with the funcs.
+#m8 = ContractManagement(db)  # db is the M9 Database object
+#cid = m8.create_customer(user, "Sunrise Hotel", "876-555-0100")
+#m8.create_contract(user, "Sunrise Hotel", "Weekly pickup", "2026-01-01", "2026-12-31")
+
 from datetime import date
 
+from . import M2_Security
+from .errors import NotFound, ServiceError, ValidationError  # ValidationError is shared
 
-class ContractManagementError(Exception):
+
+class ContractManagementError(ServiceError):
     """Base exception for M8 errors."""
 
 
-class ValidationError(ContractManagementError):
-    """Raised when supplied customer or contract information is invalid."""
-
-
-class CustomerNotFoundError(ContractManagementError):
+class CustomerNotFoundError(ContractManagementError, NotFound):
     """Raised when a customer cannot be found."""
 
 
-class ContractNotFoundError(ContractManagementError):
+class ContractNotFoundError(ContractManagementError, NotFound):
     """Raised when a contract cannot be found."""
 
 
-class DocumentNotFoundError(ContractManagementError):
+class DocumentNotFoundError(ContractManagementError, NotFound):
     """Raised when a supplied document ID does not exist."""
 
 
 class ContractManagement:
     """Business logic for customer and contract management."""
 
-
     CUSTOMER_TABLE = "customers"
     CONTRACT_TABLE = "contracts"
     DOCUMENT_TABLE = "documents"
+    PERMISSION = "M8_Contract_Management"   # key in M2_Security.PERMISSIONS (Owner, Admin)
+
+    JOINE_D = (
+        "SELECT contracts.id, contracts.customer_id, customers.name AS customer_name, "
+        "customers.contact AS customer_contact, contracts.details, contracts.start_date, "
+        "contracts.end_date, contracts.document_id "
+        "FROM contracts INNER JOIN customers ON contracts.customer_id = customers.id"
+    )
 
     def __init__(self, database):
-        """
-        Receive the Database object created by the C4 data access module.
-
-        Example:
-            db = Database("waste_management.db")
-            m8 = ContractManagement(db)
-        """
+        """Receive the Database object created by the C4 data access module (M9)."""
         if database is None:
             raise ValueError("A Database object from the data access module is required.")
-
         self.db = database
 
-# THIS SECTION DEALS WITH VALIDATION METHODS
+    # ---------------------------------------------------------
+    # Validation helpers
+    # ---------------------------------------------------------
+    def _check_access(self, user):
+        M2_Security.require(user, self.PERMISSION)
 
     @staticmethod
-    """This text is at the least required, cannot continue without it."""
     def _required_text(value, field_name):
-        """Return trimmed text or raise an error if it is missing."""
         if not isinstance(value, str) or not value.strip():
             raise ValidationError(f"{field_name} is required.")
         return value.strip()
 
     @staticmethod
     def _optional_text(value, field_name):
-        """Return trimmed optional text."""
         if value is None:
             return None
         if not isinstance(value, str):
@@ -63,141 +73,131 @@ class ContractManagement:
 
     @staticmethod
     def _valid_date(value, field_name):
-        """Validate a date supplied in YYYY-MM-DD format."""
+        """Validate a date supplied in YYYY-MM-DD format and return a date object."""
         if not isinstance(value, str):
             raise ValidationError(f"{field_name} must use YYYY-MM-DD format.")
-        
         try:
-            return date.fromisoformat(value)
+            return date.fromisoformat(value.strip())
         except ValueError:
-            raise ValidationError(
-                f"{field_name} must be a valid date in YYYY-MM-DD format."
-            ) from None
-
-
-# THIS SECTION DEALS WITH CUSTOMERS AND CONTRACTS
-    
-    def create_customer(self, name, contact=None):
-        """
-        Store a new customer and return its generated database ID.
-        The schema stores their name and one general contact field.
-        """
-        name = self._required_text(name, "Customer name")
-        contact = self._optional_text(contact, "Customer contact")
-
-        # The database also enforces UNIQUE on customers.name.
-        existing = self.db.find(self.CUSTOMER_TABLE, name=name)
-        if existing:
-            raise ValidationError(f"Customer '{name}' already exists.")
-    
-        # Find the customer first so the contract uses the correct foreign key.
-        customer = self.find_customer_by_name(customer_name)
-        if customer is None:
-            raise CustomerNotFoundError(
-                f"Customer '{customer_name}' was not found. "
-                "Create the customer before adding a contract."
-            )
-
-        # document_id is optional, but if supplied it must refer to a pre-existing document.
-
-        if document_id is not None:
-            self._validate_id(document_id, "Document ID")
-            document = self.db.get(self.DOCUMENT_TABLE, document_id)
-
-            if document is None:
-                raise DocumentNotFoundError(
-                    f"Document ID {document_id} does not exist."
-                )
-      
-        """Details may include service arrangements, collection frequency and agreed fees 
-        which do not have their own dedicated section"""
-        
-        contract_record = {
-            "customer_id": customer["id"],
-            "details": details,
-            "start_date": start.isoformat(),
-            "end_date": end.isoformat(),
-            "document_id": document_id,
-        }
-
-        with self.db.transaction():
-            contract_id = self.db.save(
-                self.CONTRACT_TABLE,
-                contract_record,
-            )
-
-        return contract_id
-
-    def get_contract(self, contract_id):
-        """Retrieve one customer's contract using its database ID."""
-        self._validate_id(contract_id, "Contract ID")
-        return self.db.get(self.CONTRACT_TABLE, contract_id)
-
-    def get_customer_contracts(self, customer_id):
-        """Retrieves every contract of one particular customer using their customer ID."""
-        self._validate_id(customer_id, "Customer ID")
-
-        customer = self.db.get(self.CUSTOMER_TABLE, customer_id)
-        """ensures customer exists"""
-        if customer is None:
-            raise CustomerNotFoundError(
-                f"Customer ID {customer_id} does not exist."
-            )
-
-        return self.db.find(
-            self.CONTRACT_TABLE,
-            customer_id=customer_id,
-        )
-
-    def get_contracts_by_customer_name(self, customer_name):
-        """Retrieves contracts by the customer's exact name."""
-        customer = self.find_customer_by_name(customer_name)
-
-        if customer is None:
-            raise CustomerNotFoundError(
-                """ensures customer exists"""
-                f"Customer '{customer_name}' was not found."
-            )
-
-        return self.get_customer_contracts(customer["id"])
-
-    def get_all_contracts(self):
-        """Retrieve all contracts stored in the database."""
-        return self.db.find(self.CONTRACT_TABLE)
-
-    def get_contract_with_customer(self, contract_id):
-        """
-        Retrieve a contract together with its customer's name and contact.
-
-        Uses the C4 query() method for the JOIN; M8 does not open a
-        separate database connection.
-        """
-        self._validate_id(contract_id, "Contract ID")
-
-        sql = """
-            SELECT
-                contracts.id,
-                contracts.customer_id,
-                customers.name AS customer_name,
-                customers.contact AS customer_contact,
-                contracts.details,
-                contracts.start_date,
-                contracts.end_date,
-                contracts.document_id
-            FROM contracts
-            INNER JOIN customers
-                ON contracts.customer_id = customers.id
-            WHERE contracts.id = ?
-        """
-
-        results = self.db.query(sql, (contract_id,))
-        return results[0] if results else None
-
-# Code that is resused for validating customer/contract ID rather than rewriting for each method
+            raise ValidationError(f"{field_name} must be a valid date in YYYY-MM-DD format.") from None
 
     @staticmethod
     def _validate_id(value, field_name):
-        """Require a database ID that is positive integer."""
         if isinstance(value, bool) or not isinstance(value, int) or value <= 0:
             raise ValidationError(f"{field_name} must be a positive integer.")
+
+    def _check_document(self, document_id):
+        """document_id is optional, but if supplied it must refer to an existing document."""
+        if document_id is None:
+            return
+        self._validate_id(document_id, "Document ID")
+        if self.db.get(self.DOCUMENT_TABLE, document_id) is None:
+            raise DocumentNotFoundError(f"Document ID {document_id} does not exist.")
+
+    def _contract_fields(self, customer_name, details, start_date, end_date, document_id):
+        """Validate everything for a contract and return (customer, record fields)."""
+        customer = self._customer_by_name(customer_name)
+        if customer is None:
+            raise CustomerNotFoundError(
+                f"Customer '{str(customer_name).strip()}' was not found. "
+                "Create the customer before adding a contract.")
+        details = self._required_text(details, "Contract details")
+        start = self._valid_date(start_date, "Start date")
+        end = self._valid_date(end_date, "End date")
+        if end < start:
+            raise ValidationError("The end date cannot be before the start date.")
+        self._check_document(document_id)
+        return {"customer_id": customer["id"], "details": details,
+                "start_date": start.isoformat(), "end_date": end.isoformat(),
+                "document_id": document_id}
+
+    def _customer_by_name(self, name):
+        name = self._required_text(name, "Customer name")
+        rows = self.db.find(self.CUSTOMER_TABLE, name=name)
+        return rows[0] if rows else None
+
+    # ---------------------------------------------------------
+    # Customer operations
+    # ---------------------------------------------------------
+    def create_customer(self, user, name, contact=None):
+        """Store a new customer and return its generated database ID."""
+        self._check_access(user)
+        name = self._required_text(name, "Customer name")
+        contact = self._optional_text(contact, "Customer contact")
+        if self.db.find(self.CUSTOMER_TABLE, name=name):       # the database also enforces UNIQUE
+            raise ValidationError(f"Customer '{name}' already exists.")
+        return self.db.save(self.CUSTOMER_TABLE, {"name": name, "contact": contact or ""})
+
+    def find_customer_by_name(self, user, name):
+        """Return the customer with this exact name, or None."""
+        self._check_access(user)
+        return self._customer_by_name(name)
+
+    def list_customers(self, user):
+        self._check_access(user)
+        return self.db.find(self.CUSTOMER_TABLE)
+
+    # ---------------------------------------------------------
+    # Contract operations
+    # ---------------------------------------------------------
+    def create_contract(self, user, customer_name, details, start_date, end_date, document_id=None):
+        """Store a contract for an existing customer and return its ID."""
+        self._check_access(user)
+        record = self._contract_fields(customer_name, details, start_date, end_date, document_id)
+        with self.db.transaction():
+            return self.db.save(self.CONTRACT_TABLE, record)
+
+    def update_contract(self, user, contract_id, customer_name, details, start_date, end_date,
+                        document_id=None):
+        """Edit an existing contract."""
+        self._check_access(user)
+        self._validate_id(contract_id, "Contract ID")
+        if self.db.get(self.CONTRACT_TABLE, contract_id) is None:
+            raise ContractNotFoundError(f"Contract ID {contract_id} does not exist.")
+        record = self._contract_fields(customer_name, details, start_date, end_date, document_id)
+        record["id"] = contract_id
+        with self.db.transaction():
+            self.db.save(self.CONTRACT_TABLE, record)
+
+    def get_contract(self, user, contract_id):
+        """Retrieve one contract, with its customer's name and contact."""
+        self._check_access(user)
+        self._validate_id(contract_id, "Contract ID")
+        rows = self.db.query(self.JOINE_D + " WHERE contracts.id = ?", (contract_id,))
+        if not rows:
+            raise ContractNotFoundError(f"Contract ID {contract_id} does not exist.")
+        return rows[0]
+
+    get_contract_with_customer = get_contract        # name used in the original version
+
+    def get_customer_contracts(self, user, customer_id):
+        """Retrieve every contract belonging to a particular customer."""
+        self._check_access(user)
+        self._validate_id(customer_id, "Customer ID")
+        if self.db.get(self.CUSTOMER_TABLE, customer_id) is None:
+            raise CustomerNotFoundError(f"Customer ID {customer_id} does not exist.")
+        return self.db.query(self.JOINE_D + " WHERE contracts.customer_id = ? ORDER BY contracts.id",
+                             (customer_id,))
+
+    def get_contracts_by_customer_name(self, user, customer_name):
+        """Retrieve contracts by the customer's exact name."""
+        self._check_access(user)
+        customer= self._customer_by_name(customer_name)
+        if customer is None:
+            raise CustomerNotFoundError(f"Customer '{customer_name.strip()}' was not found.")
+        return self.get_customer_contracts(user, customer["id"])
+
+    def get_all_contracts(self, user):
+        self._check_access(user)
+        return self.db.query(self.JOINE_D + " ORDER BY contracts.id DESC")
+
+    def find_contracts(self, user, text=""):
+        """Search by customer name or any words in the contract details (SR-06.x)."""
+        self._check_access(user)
+        if not text or not text.strip():
+            return self.get_all_contracts(user)
+        like=f"%{text.strip()}%"
+        return self.db.query(
+            self.JOINE_D + " WHERE customers.name LIKE ? OR contracts.details LIKE ? "
+            "ORDER BY contracts.id DESC", (like, like))
 
