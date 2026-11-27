@@ -6,7 +6,7 @@ from tkinter import messagebox, ttk
 from ..errors import ServiceError
 
 def run(action, *args, **kwargs):
-    """Call a feature module function. Shows the error and returns None if it fails."""
+    #Call a feature module function. Shows the error and returns None if it fails.
     try:
         return action(*args, **kwargs)
     except ServiceError as e:
