@@ -30,7 +30,7 @@ through M9_Data_Access. The screens are in the `Ui` folder.
 
 The first run creates `donfran.db` and fills it with dummy data.
 
-## Demo logins
+## Dummy data logins
 The password for every user was set to (for convenience when testing) `1234`.
 
 | Username | Role |
