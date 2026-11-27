@@ -68,14 +68,3 @@ please don't write passwords into the code lol, or commit it to the repository
     errors.py                   shared error types
     Ui folder                   contains all the screens for each module
 
-## Team
-
-| Member | Modules |
-|--------|---------|
-| Kevon|M2, M6, M9|
-| Jhonanthan|M3, M8|
-| Demarkie|M4|
-|Ciara|M5|
-| Kahalcia|M7|
-
-Instructor: Dr. Ricardo Anderson. Facilitator: Ms. Roshae Sinclair.
