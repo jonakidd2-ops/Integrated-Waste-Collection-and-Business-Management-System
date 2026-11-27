@@ -28,7 +28,7 @@ through M9_Data_Access. The screens are in the `Ui` folder.
 2. to start app run: `python main.py`
 3. To start again with a fresh dummy database run: `python main.py --reset`
 
-The first run creates `donfran.db` and fills it with demo data.
+The first run creates `donfran.db` and fills it with dummy data.
 
 ## Demo logins
 The password for every user was set for convivence in testing `1234`.
