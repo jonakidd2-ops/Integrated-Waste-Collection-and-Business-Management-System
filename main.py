@@ -10,8 +10,7 @@ import sys
 HERE=os.path.dirname(os.path.abspath(__file__))
 PACKAGE="donfran"
 DB_FILE=os.path.join(HERE, "donfran.db")
-def load_package():
-    """Make this folder importable as the package 'donfran'."""
+def load_package(): #Make this folder importable as the package 'donfran'.                                    
     spec=importlib.util.spec_from_file_location(
         PACKAGE, os.path.join(HERE, "__init__.py"), submodule_search_locations=[HERE])
     module=importlib.util.module_from_spec(spec)
