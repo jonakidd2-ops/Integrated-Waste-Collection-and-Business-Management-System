@@ -20,7 +20,7 @@ through M9_Data_Access. The screens are in the `Ui` folder.
 
 ## Requirements
 - Python 3.11 or newer
-- Tkinter (included with the standard Windows and macOS installers of Python)
+- Tkinter; which I believe is automatically when you install python 
 - The database here is SQLite; data access layer would need to be change to point to an actual database(relational) if this was put to real use
 
 ## How to run
