@@ -7,22 +7,24 @@ from ..errors import ServiceError
 from .import screens
 from ..M4_Document_Management import DocumentManager
 from .document_screen import DocumentScreen
+from .parts_order_screen import PartsOrderScreen
+from .contracts_screen import ContractsScreen
 
 class DocumentsAppScreen(DocumentScreen):
     def __init__(self, parent, app):
-        manager = DocumentManager(app.db, M2_Security.require)
+        manager=DocumentManager(app.db, M2_Security.require)
         super().__init__(parent, manager, app.user)
 
 
 # Menu text, permission needed, screen class.
-# Enable unfinished entries when their screens and permissions are connected.
+#Enable unfinished entries when their screens and permissions are connected.
 MENU = [
-    ("Parts orders (F-01)", "M3_Parts_Order", screens.OrderScreen),
+    ("Parts orders (F-01)", "M3_Parts_Order", PartsOrderScreen),
     ("Documents (F-02)", "documents", DocumentsAppScreen),
     ("Collection schedule (F-03)", "schedules", screens.SchedulesScreen),
     ("Truck assignment (F-04)", "M6_Truck_Assignment", screens.AssignmentScreen),
     ("Collection status (F-05)", "M7_Collection_Status", screens.StatusScreen),
-    # ("Contracts (F-06)", "", screens.class_FORscreen_here),
+    ("Contracts (F-06)", "M8_Contract_Management", ContractsScreen)
 ]
 
 
@@ -60,7 +62,7 @@ class App(tk.Tk):
         pw_entry.bind("<Return>", lambda e: self.do_login())
         ttk.Button(outer, text="Log in", command=self.do_login).grid(row=4, column=1, sticky="e", pady=12)
         ttk.Label(outer, foreground="#666",
-                  text="Gonna put the users here so we can remember: owner, admin, leader1, side1, leader2, side2 (password: demo123)").grid(
+                  text="Gonna put the users here so we can remember: owner, admin, leader1, side1, leader2, side2 (password is 1234)").grid(
             row=5, column=0, columnspan=2)
         user_entry.focus_set()
 
@@ -104,3 +106,6 @@ class App(tk.Tk):
         for child in self.content.winfo_children():
             child.destroy()
         cls(self.content, self).pack(fill="both", expand=True)
+
+
+#####code for a backup function would go here
