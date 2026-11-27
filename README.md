@@ -44,7 +44,7 @@ the system is designed so that each role only sees the menu items it is allowed 
 
 ## Sending order emails
 when the email settings is unconfigured a parts order is saved as an `.eml` file in the a folder called `orders`. 
-in order to acutually send real email, set these before running:
+in order to acutually send real emails, set these before running:
 
     set DONFRAN_SMTP_HOST=smtp.gmail.com
     set DONFRAN_SMTP_PORT=587
