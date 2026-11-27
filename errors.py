@@ -1,7 +1,5 @@
 #Custom exceptions
-#Errors raised by the feature modules. The UI shows hypothetically their message to the user.
-
-
+#we should use these to raise Errors for the feature modules. 
 class ServiceError(Exception):
     pass
 class ValidationError(ServiceError):
