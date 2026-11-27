@@ -4,9 +4,10 @@ import os
 from .errors import AuthError, PermissionDenied #makes the custom exceptions that were in error.py avialable for use where nessary here
 
 ROLES=("Owner", "Admin", "Team Leader", "Sidemen") #Roles within the system
-PERMISSIONS={"M6_Truck_Assignment": {"Admin"},"documents": {"Owner", "Admin"},"schedules":{"Owner", "Admin"},
-             "view_collections": {"Owner", "Admin", "Team Leader", "Sidemen"}, "M3_Parts_Order": {"Owner", "Admin"},
-             "M7_Collection_Status": {"Admin", "Team Leader"},}#content inside tupe would take the format {"PartOrder": {Admin},} PartOrder being the name of the module for F-01
+PERMISSIONS={"M3_Parts_Order": {"Admin"}, "M8_Contract_Management": {"Owner", "Admin"},
+             "M6_Truck_Assignment": {"Admin"},"documents": {"Owner", "Admin"},
+             "schedules":{"Owner", "Admin"},"M7_Collection_Status":{"Admin", "Team Leader"},
+             "view_collections": {"Owner", "Admin", "Team Leader", "Sidemen"}}#content inside tupe would take the format {"PartOrder": {Admin},} PartOrder being the name of the module for F-01
 #decide which role can perform whcih action
 HASHSTRENGHT= 200_000 #used to detemine # of time hashing is repaeted
 
@@ -38,7 +39,8 @@ def can(role: str, action: str)->bool: #just a permission check to ensure that a
   return role in PERMISSIONS.get(action,set())
   #can("Owner", "backup") would return True
 
-def require(user: dict, action: str)->None: 
+def require(user: dict, action: str)->None:
   if not user or not can(user["role"], action):
     raise PermissionDenied("You are not allowed to do this")
   #require(user, "contracts") return Your role is not allowed to do this. if user lack the sufficent permission.
+
